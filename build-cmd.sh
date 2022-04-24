@@ -50,7 +50,7 @@ pushd "$FREETYPELIB_SOURCE_DIR"
             load_vsvars
 
             verdir="vc2022"
-            build_sln "builds/win32/$verdir/freetype.sln" "LIB Release|$AUTOBUILD_WIN_VSPLATFORM"
+            MSYS_NO_PATHCONV=1 msbuild.exe "builds/win32/$verdir/freetype.sln" /p:Configuration="LIB Release" /p:Platform="$AUTOBUILD_WIN_VSPLATFORM" /t:freetype
 
             mkdir -p "$stage/lib/release"
             cp -a "objs/win32/$verdir"/freetype*.lib "$stage/lib/release/freetype.lib"
