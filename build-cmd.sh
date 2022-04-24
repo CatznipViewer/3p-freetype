@@ -11,6 +11,7 @@ set -u
 
 FREETYPELIB_SOURCE_DIR="freetype"
 
+# check autobuild is around or fail
 if [ -z "$AUTOBUILD" ] ; then
     exit 1
 fi
@@ -26,8 +27,10 @@ stage="$(pwd)/stage"
 
 # load autobuild provided shell functions and variables
 source_environment_tempfile="$stage/source_environment.sh"
-"$autobuild" source_environment > "$source_environment_tempfile"
+"$AUTOBUILD" source_environment > "$source_environment_tempfile"
+set +x
 . "$source_environment_tempfile"
+set -x
 
 [ -f "$stage"/packages/include/zlib/zlib.h ] || fail "You haven't installed packages yet."
 
@@ -46,21 +49,7 @@ pushd "$FREETYPELIB_SOURCE_DIR"
         windows*)
             load_vsvars
 
-            case "$AUTOBUILD_VSVER" in
-                "120")
-                    verdir="vc2013"
-                    ;;
-                "150")
-                    # We have not yet updated the .sln and .vcxproj files for
-                    # VS 2017. Until we do, those projects and their build
-                    # outputs will be found in the same places as before.
-                    verdir="vc2013"
-                    ;;
-                *)
-                    echo "Unknown AUTOBUILD_VSVER = '$AUTOBUILD_VSVER'" 1>&2 ; exit 1
-                    ;;
-            esac
-
+            verdir="vc2022"
             build_sln "builds/win32/$verdir/freetype.sln" "LIB Release|$AUTOBUILD_WIN_VSPLATFORM"
 
             mkdir -p "$stage/lib/release"
